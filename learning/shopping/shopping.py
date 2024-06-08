@@ -4,6 +4,7 @@ import sys
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
+import pandas as pd
 
 TEST_SIZE = 0.4
 
@@ -16,6 +17,7 @@ def main():
 
     # Load data from spreadsheet and split into train and test sets
     evidence, labels = load_data(sys.argv[1])
+
     X_train, X_test, y_train, y_test = train_test_split(
         evidence, labels, test_size=TEST_SIZE
     )
@@ -60,39 +62,36 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    with open("shopping.csv", newline="") as csv_file:
-        df = csv.reader(csv_file, delimiter=",")
-        df = list(df)[1:]
-        labels = [row[-1] for row in df]
-        evidence = [row[:-1] for row in df]
+    df = pd.read_csv("shopping.csv")
+    labels = df["Revenue"]
+    evidence = df.drop(columns=["Revenue"])
 
-        months = {
-            "Jan": 0,
-            "Feb": 1,
-            "Mar": 2,
-            "Apr": 3,
-            "May": 4,
-            "June": 5,
-            "Jul": 6,
-            "Aug": 7,
-            "Sep": 8,
-            "Oct": 9,
-            "Nov": 10,
-            "Dec": 11,
-        }
+    months = {
+        "Jan": 0,
+        "Feb": 1,
+        "Mar": 2,
+        "Apr": 3,
+        "May": 4,
+        "June": 5,
+        "Jul": 6,
+        "Aug": 7,
+        "Sep": 8,
+        "Oct": 9,
+        "Nov": 10,
+        "Dec": 11,
+    }
 
-        bool_modifier = {True: 1, False: 0}
+    bool_modifier = {True: 1, False: 0}
 
-        for i, (row, label) in enumerate(zip(evidence, labels)):
-            row[10] = months[row[10]]
-            row[15] = 1 if row[15] == "Returning_Visitor" else 0
-            row[16] = bool_modifier[bool(row[16])]
+    evidence["VisitorType"] = evidence["VisitorType"].apply(
+        lambda x: 1 if x == "Returning_Visitor" else 0
+    )
 
-            labels[i] = bool_modifier[bool(label)]
+    evidence["Month"] = evidence["Month"].map(months)
+    evidence["Weekend"] = evidence["Weekend"].map(bool_modifier)
+    labels = labels.map(bool_modifier)
 
-        # print(evidence[0], labels[0])
-
-        return evidence, labels
+    return evidence, labels
 
 
 def train_model(evidence, labels):
