@@ -65,6 +65,32 @@ def load_data(filename):
         labels = [row[-1] for row in df]
         evidence = [row[:-1] for row in df]
 
+        months = {
+            "Jan": 0,
+            "Feb": 1,
+            "Mar": 2,
+            "Apr": 3,
+            "May": 4,
+            "June": 5,
+            "Jul": 6,
+            "Aug": 7,
+            "Sep": 8,
+            "Oct": 9,
+            "Nov": 10,
+            "Dec": 11,
+        }
+
+        bool_modifier = {True: 1, False: 0}
+
+        for i, (row, label) in enumerate(zip(evidence, labels)):
+            row[10] = months[row[10]]
+            row[15] = 1 if row[15] == "Returning_Visitor" else 0
+            row[16] = bool_modifier[bool(row[16])]
+
+            labels[i] = bool_modifier[bool(label)]
+
+        print(evidence[0], labels[0])
+
         return evidence, labels
 
 
@@ -73,7 +99,6 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
 
 
 def evaluate(labels, predictions):
