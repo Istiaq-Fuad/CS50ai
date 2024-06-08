@@ -89,7 +89,7 @@ def load_data(filename):
 
             labels[i] = bool_modifier[bool(label)]
 
-        print(evidence[0], labels[0])
+        # print(evidence[0], labels[0])
 
         return evidence, labels
 
@@ -99,6 +99,11 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
+
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
+
+    return model
 
 
 def evaluate(labels, predictions):
